@@ -6,54 +6,81 @@ const COLLECTION_NAME = "carts";
 class Cart {
   constructor() {}
 
-  static #items = [];
+ static add(productName) {
+    const db = getDatabase();
 
-  static add(productName) {
-    const product = Product.findByName(productName);
+    return Product.findByName(productName)
+      .then((product) => {
+        if (!product) {
+          throw new Error(`Product '${productName}' not found.`);
+        }
 
-    if (!product) {
-      throw new error(`Product '${productName}' not found.`);
-    }
+        return db.collection(COLLECTION_NAME)
+          .findOne({ _id: "current" })
+          .then((cart) => {
+            if (!cart.items.length) {
+              cart.items.push({ product, quantity: 1 });
+              return db.collection(COLLECTION_NAME)
+                .updateOne({ _id: "current" }, { $set: { items: cart.items } })
+                .then(() => cart.items);
+            }
 
-    if (!this.#items.length) {
-      this.#items.push({ product, quantity: 1 });
+            const existingProduct = cart.items.find(
+              (item) => item.product.name === productName
+            );
 
-      return;
-    }
-
-    const existingProduct = this.#items.find(
-      (item) => item.product.name === productName
-    );
-
-    if (existingProduct) {
-      existingProduct.quantity += 1;
-    } else {
-      this.#items.push({ product, quantity: 1 });
-    }
+            if (existingProduct) {
+              existingProduct.quantity += 1;
+              return db.collection(COLLECTION_NAME)
+                .updateOne({ _id: "current" }, { $set: { items: cart.items } })
+                .then(() => cart.items);
+            } else {
+              cart.items.push({ product, quantity: 1 });
+              return db.collection(COLLECTION_NAME)
+                .updateOne({ _id: "current" }, { $set: { items: cart.items } })
+                .then(() => cart.items);
+            }
+          })
+          .catch((error) => console.error(error));
+      })
+      .catch((error) => console.error(error));
   }
 
   static getItems() {
-    return this.#items;
+    const db = getDatabase();
+    return db.collection(COLLECTION_NAME)
+      .findOne({ _id: "current" })
+      .then((cart) => cart ? cart.items : [])
+      .catch((error) => console.error(error));
   }
 
   static getProductsQuantity() {
-    if (!this.#items?.length) {
-      return 0;
-    }
-
-    return this.#items.reduce((total, item) => {
-      return total + item.quantity;
-    }, 0);
+    const db = getDatabase();
+    return db.collection(COLLECTION_NAME)
+      .findOne({ _id: "current" })
+      .then((cart) => {
+        if (!cart || !cart.items) return 0;
+        return cart.items.reduce((total, item) => total + item.quantity, 0);
+      })
+      .catch((error) => console.error(error));
   }
 
   static getTotalPrice() {
-    return this.#items.reduce((total, item) => {
-      return total + item.product.price * item.quantity;
-    }, 0);
+    const db = getDatabase();
+    return db.collection(COLLECTION_NAME)
+      .findOne({ _id: "current" })
+      .then((cart) => {
+        if (!cart || !cart.items) return 0;
+        return cart.items.reduce((total, item) => total + item.product.price * item.quantity, 0);
+      })
+      .catch((error) => console.error(error));
   }
 
   static clearCart() {
-    this.#items = [];
+    const db = getDatabase();
+    return db.collection(COLLECTION_NAME)
+      .updateOne({ _id: "current" }, { $set: { items: [] } })
+      .catch((error) => console.error(error));
   }
 }
 

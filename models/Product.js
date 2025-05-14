@@ -14,10 +14,8 @@ class Product {
     db.collection(COLLECTION_NAME)
       .find()
       .toArray()
-      .then((products) => callback(products))
-      .catch((error) => {console.error(error);
-        //callback([]);
-      });
+      .then((products) => products)
+      .catch((error) => console.error(error));
   }
 
   static add(product) {
@@ -28,15 +26,12 @@ class Product {
       .catch((error) => console.log(error));
   }
 
-  static findByName(name, callback) {
+  static findByName(name) {
     const db = getDatabase();
     db.collection(COLLECTION_NAME)
       .findOne({ name })
-      .then((product) => callback(product))
-      .catch((error) => {
-        console.error(error);
-        //callback(null);
-      });
+      .then((product) => product)
+      .catch((error) => console.error(error));
   }
 
   static deleteByName(name) {
@@ -46,15 +41,7 @@ class Product {
       .then((result) => console.log(result))
       .catch((error) => console.error(error));
   }
-/*
-  static getLast() {
-    if (!this.#products.length) {
-      return;
-    }
 
-    return this.#products[this.#products.length - 1];
-  }
-    */
   static getLast(callback) {
     const db = getDatabase();
     db.collection(COLLECTION_NAME)
@@ -62,11 +49,8 @@ class Product {
       .sort({ _id: -1 })
       .limit(1)
       .toArray()
-      .then((products) => callback(products[0] || null))
-      .catch((error) => {
-        console.error(error);
-        //callback(null);
-      });
+      .then((products) => products[0] || null)
+      .catch((error) => console.error(error));
   }
 }
 
