@@ -1,4 +1,7 @@
 const Product = require("./Product");
+const { getDatabase } = require('../database');
+
+const COLLECTION_NAME = "carts";
 
 class Cart {
   constructor() {}
