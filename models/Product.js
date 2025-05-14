@@ -11,7 +11,7 @@ class Product {
 
   static getAll() {
     const db = getDatabase();
-    db.collection(COLLECTION_NAME)
+    return db.collection(COLLECTION_NAME)
       .find()
       .toArray()
       .then((products) => products)
@@ -19,8 +19,8 @@ class Product {
   }
 
   static add(product) {
-  const db = getDatabase();
-  db.collection(COLLECTION_NAME)
+    const db = getDatabase();
+    return db.collection(COLLECTION_NAME)
       .insertOne(product)
       .then((result) => console.log(result))
       .catch((error) => console.log(error));
@@ -28,7 +28,7 @@ class Product {
 
   static findByName(name) {
     const db = getDatabase();
-    db.collection(COLLECTION_NAME)
+    return db.collection(COLLECTION_NAME)
       .findOne({ name })
       .then((product) => product)
       .catch((error) => console.error(error));
@@ -36,20 +36,20 @@ class Product {
 
   static deleteByName(name) {
     const db = getDatabase();
-    db.collection(COLLECTION_NAME)
+    return db.collection(COLLECTION_NAME)
       .deleteOne({ name })
       .then((result) => console.log(result))
       .catch((error) => console.error(error));
   }
 
-  static getLast(callback) {
+  static getLast() {
     const db = getDatabase();
-    db.collection(COLLECTION_NAME)
+    return db.collection(COLLECTION_NAME)
       .find()
       .sort({ _id: -1 })
       .limit(1)
       .toArray()
-      .then((products) => products[0] || null)
+      .then((products) => products[0])
       .catch((error) => console.error(error));
   }
 }

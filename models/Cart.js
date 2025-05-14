@@ -9,7 +9,7 @@ class Cart {
  static add(productName) {
     const db = getDatabase();
 
-    return Product.findByName(productName)
+    return Product.findByName(productName) 
       .then((product) => {
         if (!product) {
           throw new Error(`Product '${productName}' not found.`);
@@ -18,6 +18,14 @@ class Cart {
         return db.collection(COLLECTION_NAME)
           .findOne({ _id: "current" })
           .then((cart) => {
+            /*
+            if (!cart) {
+              const newCart = { _id: "current", items: [{ product, quantity: 1 }] };
+              return db.collection(COLLECTION_NAME)
+                .insertOne(newCart)
+                .then(() => newCart.items);
+            }*/
+
             if (!cart.items.length) {
               cart.items.push({ product, quantity: 1 });
               return db.collection(COLLECTION_NAME)
@@ -34,6 +42,7 @@ class Cart {
               return db.collection(COLLECTION_NAME)
                 .updateOne({ _id: "current" }, { $set: { items: cart.items } })
                 .then(() => cart.items);
+
             } else {
               cart.items.push({ product, quantity: 1 });
               return db.collection(COLLECTION_NAME)
